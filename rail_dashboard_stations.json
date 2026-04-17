@@ -21,13 +21,7 @@
                          "map_label":  "DL\u0026W Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "59115",
@@ -43,13 +37,7 @@
                          "map_label":  "DL\u0026W Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43502",
@@ -65,13 +53,7 @@
                          "map_label":  "Canalside Station (Inbound)",
                          "station_status":  "DELAY",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43503",
@@ -87,13 +69,7 @@
                          "map_label":  "Canalside Station (Outbound)",
                          "station_status":  "DELAY",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43504",
@@ -109,13 +85,7 @@
                          "map_label":  "Seneca Station - Merchants Insurance (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43505",
@@ -131,13 +101,7 @@
                          "map_label":  "Seneca Station - Merchants Insurance (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43506",
@@ -153,13 +117,7 @@
                          "map_label":  "Church St Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43507",
@@ -175,13 +133,7 @@
                          "map_label":  "Church St Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43508",
@@ -197,13 +149,7 @@
                          "map_label":  "Lafayette Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43509",
@@ -219,13 +165,7 @@
                          "map_label":  "Lafayette Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43510",
@@ -241,13 +181,7 @@
                          "map_label":  "Fountain Plaza Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43511",
@@ -263,13 +197,7 @@
                          "map_label":  "Fountain Plaza Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43514",
@@ -285,13 +213,7 @@
                          "map_label":  "Allen-Medical Campus Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43515",
@@ -307,13 +229,7 @@
                          "map_label":  "Allen-Medical Campus Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43516",
@@ -329,13 +245,7 @@
                          "map_label":  "Summer-Best Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43517",
@@ -351,13 +261,7 @@
                          "map_label":  "Summer-Best Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43518",
@@ -373,13 +277,7 @@
                          "map_label":  "Utica Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43519",
@@ -395,13 +293,7 @@
                          "map_label":  "Utica Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43520",
@@ -417,13 +309,7 @@
                          "map_label":  "Delavan-Canisius College (Inbound)",
                          "station_status":  "DELAY",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43521",
@@ -439,13 +325,7 @@
                          "map_label":  "Delavan-Canisius College (Outbound)",
                          "station_status":  "DELAY",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43522",
@@ -461,13 +341,7 @@
                          "map_label":  "Humboldt Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43523",
@@ -483,13 +357,7 @@
                          "map_label":  "Humboldt Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "no",
-                         "escalator":  "no",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "no"
                      },
                      {
                          "station_number":  "43524",
@@ -505,13 +373,7 @@
                          "map_label":  "Amherst Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43525",
@@ -527,13 +389,7 @@
                          "map_label":  "Amherst Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43526",
@@ -549,13 +405,7 @@
                          "map_label":  "LaSalle Station (Inbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43527",
@@ -571,13 +421,7 @@
                          "map_label":  "LaSalle Station (Outbound)",
                          "station_status":  "OPEN",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43528",
@@ -593,13 +437,7 @@
                          "map_label":  "University Station (Inbound)",
                          "station_status":  "CLOSED",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      },
                      {
                          "station_number":  "43529",
@@ -615,27 +453,13 @@
                          "map_label":  "University Station (Outbound)",
                          "station_status":  "CLOSED",
                          "elevator":  "yes",
-                         "escalator":  "yes",
-                         "alert_title":  "",
-                         "alert_text":  "",
-                         "alert_detail":  "",
-                         "delay_title":  "",
-                         "delay_text":  "",
-                         "delay_detail":  ""
+                         "escalator":  "yes"
                      }
                  ],
     "message_field_documentation":  {
                                         "usage":  "Set station_status to ALERT or DELAY to show full-screen message in next_train.html.",
-                                        "alert_fields":  {
-                                                             "alert_title":  "[ALERT] Example: Service Advisory",
-                                                             "alert_text":  "[ALERT] Example: Trains are bypassing this station until further notice.",
-                                                             "alert_detail":  "[ALERT] Optional detail, e.g. Updated 2:15 PM"
-                                                         },
-                                        "delay_fields":  {
-                                                             "delay_title":  "[DELAY] Example: Service Delay",
-                                                             "delay_text":  "[DELAY] Example: Southbound trains delayed 12-15 minutes.",
-                                                             "delay_detail":  "[DELAY] Optional detail, e.g. Signal issue near Fountain Plaza."
-                                                         },
-                                        "note":  "Each station row includes alert_* and delay_* fields below. Leave blank when not needed."
+                                        "note":  "Station rows no longer include alert_* or delay_* fields. ALERT and DELAY defaults are centralized in rail_messages.json.",
+                                        "delay_defaults_source":  "Default DELAY title/message are defined in rail_messages.json under delay.title and delay.message.",
+                                        "alert_defaults_source":  "Default ALERT title/message/detail are defined in rail_messages.json under alert.title, alert.message, and alert.detail."
                                     }
 }

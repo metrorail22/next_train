@@ -1,0 +1,71 @@
+{
+  "ada": {
+    "banner_text": "ADA ALERT & SEE DETAILS"
+  },
+  "alerts": [
+    {
+      "_id": "ALERT0",
+      "title": "Rider Alert",
+      "message": "Please listen for announcements and follow posted instructions.",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT1",
+      "title": "DL&W Station Closure",
+      "message": "DL&W station will NOT be accessible, until further notice. Canalside will be the last inbound stop.",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT2",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT3",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT4",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT5",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT6",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT7",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT8",
+      "title": "",
+      "message": "",
+      "detail": ""
+    },
+    {
+      "_id": "ALERT9",
+      "title": "",
+      "message": "",
+      "detail": ""
+    }
+  ],
+  "delay": {
+    "title": "Service Delay",
+    "message": "Train service is delayed at this station."
+  }
+}

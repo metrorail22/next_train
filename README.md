@@ -3,7 +3,7 @@
 ## Overview
 `next_train.html` is a client-side rail departures page that:
 - Loads schedule data from `rail_feed.xml` (or another XML path/URL via query param).
-- Lets riders choose a stop when no stop is provided.
+- Lets user choose a stop when no stop is provided.
 - Shows next departures for a selected stop.
 - Supports direction filtering (northbound, southbound, inbound, outbound, and combo mode).
 - Displays station status overlays (closed, delay, alert).
@@ -17,6 +17,7 @@ The page expects these relative files by default:
 - `rail_feed.xml`
 - `rail_dashboard_stations.json`
 - `nfta_rail_vertical_assets.json`
+- `rail_messages.json`
 
 If any are missing/unreachable, the UI still attempts to render and falls back safely where possible.
 
@@ -58,7 +59,19 @@ At startup, the page:
 - `adamsg`
   - Optional ADA message toggle.
   - Use `adamsg=true` (or `1`, `yes`, `on`) to show a red ADA banner after the departure rows.
-  - Banner text: `ADA ALERT & SEE DETAILS`.
+  - Banner text is loaded from `rail_messages.json` -> `ada.banner_text`.
+  - Fallback text if missing/unavailable: `ADA ALERT & SEE DETAILS`.
+
+- ALERT defaults (ALERT0–ALERT9)
+  - Up to 10 distinct alert messages are supported, identified by `ALERT0` through `ALERT9` station statuses.
+  - Each is configured in `rail_messages.json` -> `alerts` array, where index 0 maps to `ALERT0`, index 1 to `ALERT1`, etc.
+  - Each entry has `title`, `message`, and optional `detail` fields.
+  - A station row with `station_status: "ALERT"` is treated as `ALERT0` for backward compatibility.
+
+- DELAY defaults
+  - Default DELAY alert title is loaded from `rail_messages.json` -> `delay.title`.
+  - Default DELAY alert message is loaded from `rail_messages.json` -> `delay.message`.
+  - These defaults are used when a station has `station_status: "DELAY"`.
 
 ## Direction Mapping
 Feed direction IDs are interpreted as:
@@ -94,16 +107,18 @@ Combo mode:
 ## Station Status and Alert Priority
 Station status data comes from `rail_dashboard_stations.json` (`stations` array).
 
-Per selected stop, matching rows are identified by stop code/ID fields. Priority is:
+Per selected stop, matching rows are identified by stop code/ID fields. Station rows no longer carry `alert_*` or `delay_*` text fields.
+Priority is:
 1. `CLOSED`
-2. `ALERT`
+2. `ALERT0` through `ALERT9` (in order, ALERT0 highest)
 3. `DELAY`
 4. `OPEN`
 
 Rendering behavior:
 - `CLOSED`: full-screen "STATION CLOSED" banner.
-- `DELAY` or `ALERT`: full-screen alert card with title/message/detail.
+- `DELAY` or `ALERTn`: full-screen alert card with title/message/detail sourced from the matching `alerts[n]` entry in `rail_messages.json`.
 - `OPEN`: normal departure list view.
+- A station row with `station_status: "ALERT"` (no number) is treated as `ALERT0`.
 
 ## Accessibility Asset Alert (Bottom Ticker)
 From `nfta_rail_vertical_assets.json` (`assets` array):
@@ -111,6 +126,32 @@ From `nfta_rail_vertical_assets.json` (`assets` array):
 - Filters to out-of-service statuses (`OFF`, `DOWN`, `OUT OF SERVICE`, `OOS`, etc.).
 - Matches assets to current station by name, station number/code, or GTFS stop ID.
 - If matches exist, shows a fixed bottom scrolling warning line.
+
+## ADA Message Configuration
+ADA message content is configured in `rail_messages.json`.
+
+Example:
+
+```json
+{
+  "ada": {
+    "banner_text": "ADA ALERT & SEE DETAILS"
+  },
+  "alerts": [
+    { "_id": "ALERT0", "title": "Rider Alert", "message": "Please listen for announcements and follow posted instructions.", "detail": "" },
+    { "_id": "ALERT1", "title": "", "message": "", "detail": "" }
+  ],
+  "delay": {
+    "title": "Service Delay",
+    "message": "Train service is delayed at this station."
+  }
+}
+```
+
+When `adamsg=true` is present in the page URL, this `banner_text` value is shown in the red ADA banner.
+When a station is in `ALERTn` status, `alerts[n].title`, `alerts[n].message`, and optional `alerts[n].detail` are used.
+When a station is in DELAY status, `delay.title` and `delay.message` are used.
+The `_id` field is informational only and not read by the app.
 
 ## Refresh and Time
 - Clock update: every 1 second.

@@ -341,8 +341,15 @@
   const DEFAULT_XML_URL = "rail_feed.xml";
   const STATION_STATUS_JSON_URL = "rail_dashboard_stations.json";
   const VERTICAL_ASSETS_JSON_URL = "nfta_rail_vertical_assets.json";
+  const RAIL_MESSAGES_JSON_URL = "rail_messages.json";
   const REFRESH_MS = 30_000;
   const DEFAULT_MAX_TRAINS = 2;
+  const DEFAULT_ADA_BANNER_TEXT = "ADA ALERT & SEE DETAILS";
+  const DEFAULT_RIDER_ALERT_TITLE = "Rider Alert";
+  const DEFAULT_RIDER_ALERT_MESSAGE = "Please listen for announcements and follow posted instructions.";
+  const DEFAULT_RIDER_ALERT_DETAIL = "";
+  const DEFAULT_DELAY_ALERT_TITLE = "Service Delay";
+  const DEFAULT_DELAY_ALERT_MESSAGE = "Train service is delayed at this station.";
 
   // Map feed direction_id -> north/south (this feed uses 1=northbound, 0=southbound)
   const NORTH_DIRECTION_IDS = new Set(["1"]);
@@ -813,7 +820,7 @@
     }
   }
 
-  function renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, departures, showAdaMessage){
+  function renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, departures, showAdaMessage, adaBannerText){
     setHeaderTime();
 
     const stopName = stop.stop_name || stop.stop_id || "Station";
@@ -903,8 +910,9 @@
       contentHtml = `<div role="list" class="departureList">${rows}</div>`;
     }
 
+    const safeAdaBannerText = String(adaBannerText || DEFAULT_ADA_BANNER_TEXT).trim() || DEFAULT_ADA_BANNER_TEXT;
     const adaHtml = showAdaMessage
-      ? '<div class="closedBanner adaBanner" role="status" aria-live="polite">ADA ALERT &amp; SEE DETAILS</div>'
+      ? `<div class="closedBanner adaBanner" role="status" aria-live="polite">${escapeHtml(safeAdaBannerText)}</div>`
       : "";
 
     $("content").innerHTML = contentHtml + adaHtml;
@@ -942,6 +950,53 @@
     return [];
   }
 
+  function buildDefaultAlerts(){
+    const defaults = [];
+    for (let i = 0; i < 10; i++){
+      defaults.push({ title: DEFAULT_RIDER_ALERT_TITLE, message: DEFAULT_RIDER_ALERT_MESSAGE, detail: DEFAULT_RIDER_ALERT_DETAIL });
+    }
+    return defaults;
+  }
+
+  async function fetchRailMessagesConfig(){
+    const fallback = {
+      adaBannerText: DEFAULT_ADA_BANNER_TEXT,
+      alerts: buildDefaultAlerts(),
+      delayTitle: DEFAULT_DELAY_ALERT_TITLE,
+      delayMessage: DEFAULT_DELAY_ALERT_MESSAGE
+    };
+    try {
+      const res = await fetchWithTimeout(RAIL_MESSAGES_JSON_URL, { cache: "no-store" }, 12000);
+      if (!res.ok) return fallback;
+      const data = await res.json();
+      const bannerText = String(data?.ada?.banner_text || "").trim();
+      const delayTitle = String(data?.delay?.title || "").trim();
+      const delayMessage = String(data?.delay?.message || "").trim();
+
+      // Build alerts array (ALERT0–ALERT9) from data.alerts array.
+      // Falls back to the legacy data.alert single object at index 0 for backward compatibility.
+      const rawAlerts = Array.isArray(data?.alerts) ? data.alerts : [];
+      const alerts = [];
+      for (let i = 0; i < 10; i++){
+        const entry = rawAlerts[i] ?? (i === 0 ? (data?.alert ?? {}) : {});
+        alerts.push({
+          title: String(entry?.title || "").trim() || DEFAULT_RIDER_ALERT_TITLE,
+          message: String(entry?.message || "").trim() || DEFAULT_RIDER_ALERT_MESSAGE,
+          detail: String(entry?.detail || "").trim() || DEFAULT_RIDER_ALERT_DETAIL
+        });
+      }
+
+      return {
+        adaBannerText: bannerText || DEFAULT_ADA_BANNER_TEXT,
+        alerts,
+        delayTitle: delayTitle || DEFAULT_DELAY_ALERT_TITLE,
+        delayMessage: delayMessage || DEFAULT_DELAY_ALERT_MESSAGE
+      };
+    } catch (_err){
+    }
+    return fallback;
+  }
+
     async function fetchVerticalAssets(){
     try {
       const res = await fetchWithTimeout(VERTICAL_ASSETS_JSON_URL, { cache: "no-store" }, 12000);
@@ -966,13 +1021,15 @@
     });
   }
 
-  function getStationAlertConfigForStop(stop, stationRows){
+  function getStationAlertConfigForStop(stop, stationRows, railMessages){
     const matches = getStationRowsForStop(stop, stationRows);
 
     const normalizeStatus = (row) => {
       if (row == null) return "OPEN";
       const raw = String(row.station_status ?? row.status ?? row.state ?? "OPEN").toUpperCase().trim();
-      if (raw === "DELAY" || raw === "OPEN" || raw === "CLOSED" || raw === "ALERT") return raw;
+      if (raw === "DELAY" || raw === "OPEN" || raw === "CLOSED") return raw;
+      if (/^ALERT\d$/.test(raw)) return raw;
+      if (raw === "ALERT") return "ALERT0"; // backward compatibility
       if (row.station_status === true || row.status === true) return "CLOSED";
       if (row.station_status === false || row.status === false) return "OPEN";
       return raw || "OPEN";
@@ -981,18 +1038,11 @@
     const buildAlert = (row, defaultStatus) => {
       const status = String(defaultStatus || "OPEN").toUpperCase();
 
-      // Allow DELAY and ALERT to keep separate copy in station JSON.
-      const title = (status === "DELAY")
-        ? String(row?.delay_title ?? row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim()
-        : String(row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim();
+      const title = String(row?.message_title ?? row?.title ?? "").trim();
 
-      const message = (status === "DELAY")
-        ? String(row?.delay_text ?? row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim()
-        : String(row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim();
+      const message = String(row?.message ?? row?.alert_message ?? row?.description ?? "").trim();
 
-      const detail = (status === "DELAY")
-        ? String(row?.delay_detail ?? row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim()
-        : String(row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim();
+      const detail = String(row?.detail ?? row?.subtext ?? "").trim();
 
       return {
         status: defaultStatus,
@@ -1006,15 +1056,18 @@
       return { status: "OPEN", title: "", message: "", detail: "" };
     }
 
-    const priorities = ["CLOSED", "ALERT", "DELAY", "OPEN"];
+    const priorities = ["CLOSED", "ALERT0","ALERT1","ALERT2","ALERT3","ALERT4","ALERT5","ALERT6","ALERT7","ALERT8","ALERT9", "DELAY", "OPEN"];
     for (const status of priorities){
       const row = matches.find((r) => normalizeStatus(r) === status);
       if (row) {
         const alert = buildAlert(row, status);
         if (!alert.title) {
           if (status === "CLOSED") alert.title = "Station Closed";
-          else if (status === "ALERT") alert.title = "Rider Alert";
-          else if (status === "DELAY") alert.title = "Service Delay";
+          else if (status.startsWith("ALERT")) {
+            const idx = parseInt(status.slice(5), 10) || 0;
+            alert.title = railMessages?.alerts?.[idx]?.title || DEFAULT_RIDER_ALERT_TITLE;
+          }
+          else if (status === "DELAY") alert.title = railMessages?.delayTitle || DEFAULT_DELAY_ALERT_TITLE;
         }
         return alert;
       }
@@ -1113,14 +1166,23 @@
     $("content").innerHTML = '<div class="closedBanner"><a href="#" onclick="history.back(); return false;" class="closedBannerLink" aria-label="Station closed. Go back">STATION CLOSED</a></div>';
   }
 
-  function renderStationAlert(stop, alertConfig){
+  function renderStationAlert(stop, alertConfig, railMessages){
     const stopName = stop.stop_name || stop.stop_id || "Station";
-    const status = String(alertConfig?.status || "ALERT").toUpperCase();
-    const title = String(alertConfig?.title || (status === "DELAY" ? "Service Delay" : "Rider Alert")).trim();
-    const message = String(alertConfig?.message || (status === "DELAY" ? "Train service is delayed at this station." : "Please listen for announcements and follow posted instructions.")).trim();
-    const detail = String(alertConfig?.detail || "").trim();
-    const screenClass = status === "DELAY" ? "alert-delay" : "alert-alert";
-    const eyebrow = status === "DELAY" ? "Delay" : "Alert";
+    const status = String(alertConfig?.status || "ALERT0").toUpperCase();
+    const isDelay = status === "DELAY";
+    const isAlert = status.startsWith("ALERT");
+    const alertIdx = isAlert ? (parseInt(status.slice(5), 10) || 0) : 0;
+    const alertEntry = railMessages?.alerts?.[alertIdx] || {};
+    const alertDefaultTitle = String(alertEntry.title || DEFAULT_RIDER_ALERT_TITLE).trim();
+    const alertDefaultMessage = String(alertEntry.message || DEFAULT_RIDER_ALERT_MESSAGE).trim();
+    const alertDefaultDetail = String(alertEntry.detail || DEFAULT_RIDER_ALERT_DETAIL).trim();
+    const delayDefaultTitle = String(railMessages?.delayTitle || DEFAULT_DELAY_ALERT_TITLE).trim();
+    const delayDefaultMessage = String(railMessages?.delayMessage || DEFAULT_DELAY_ALERT_MESSAGE).trim();
+    const title = String(alertConfig?.title || (isDelay ? delayDefaultTitle : alertDefaultTitle)).trim();
+    const message = String(alertConfig?.message || (isDelay ? delayDefaultMessage : alertDefaultMessage)).trim();
+    const detail = String(alertConfig?.detail || (isDelay ? "" : alertDefaultDetail)).trim();
+    const screenClass = isDelay ? "alert-delay" : "alert-alert";
+    const eyebrow = isDelay ? "Delay" : "Alert";
 
     $("stationTitle").innerHTML = `<a href="#" onclick="history.back(); return false;" class="backLink">${escapeHtml(title)} - ${escapeHtml(stopName)}</a>`;
     setHeaderTime();
@@ -1146,6 +1208,7 @@
     const dirFilter = normalizeDirParam(getParam("dir"));
     const maxTrains = resolveMaxTrains(getParam("max"));
     const showAdaMessage = isTrueParam(getParam("adamsg"));
+    const railMessages = await fetchRailMessagesConfig();
     $("content").textContent = `Loading ${xmlUrlParam}...`;
     try{
       // `fetchXmlWithFallback()` can take a moment; this is where we fetch the XML feed.
@@ -1188,13 +1251,13 @@
       const stationStatusRows = await fetchStationStatusRows();
       const matchingStationRows = getStationRowsForStop(stop, stationStatusRows);
       await renderElevatorOutageLine(matchingStationRows, stop);
-      const alertConfig = getStationAlertConfigForStop(stop, stationStatusRows);
+      const alertConfig = getStationAlertConfigForStop(stop, stationStatusRows, railMessages);
       if (alertConfig.status === "CLOSED"){
         renderStationClosed(stop, dirFilter);
         return;
       }
       if (alertConfig.status === "DELAY" || alertConfig.status === "ALERT") {
-        renderStationAlert(stop, alertConfig);
+        renderStationAlert(stop, alertConfig, railMessages);
         return;
       }
 
@@ -1212,7 +1275,7 @@
           )
         : [];
 
-      renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, deps, showAdaMessage);
+      renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, deps, showAdaMessage, railMessages.adaBannerText);
 
     } catch (e){
       hideBanner();
