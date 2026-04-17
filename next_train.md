@@ -55,6 +55,11 @@ At startup, the page:
   - Optional number of upcoming trains to display.
   - If blank, missing, invalid, or <= 0, defaults to `2`.
 
+- `adamsg`
+  - Optional ADA message toggle.
+  - Use `adamsg=true` (or `1`, `yes`, `on`) to show a red ADA banner after the departure rows.
+  - Banner text: `ADA ALERT & SEE DETAILS`.
+
 ## Direction Mapping
 Feed direction IDs are interpreted as:
 - `1` => northbound
@@ -146,6 +151,9 @@ Example with stop and direction:
 
 Example with stop, direction, and custom count:
 - `http://localhost:8000/next_train.html?stop=11440&dir=north&max=3`
+
+Example with ADA banner enabled:
+- `http://localhost:8000/next_train.html?stop=11440&dir=north&max=3&adamsg=true`
 
 ## Tunable Constants
 Inside the script:

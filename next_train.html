@@ -58,6 +58,9 @@
       letter-spacing: 1px;
       text-transform: uppercase;
     }
+    .adaBanner {
+      margin-top: 12px;
+    }
     .closedBannerLink {
       color: inherit;
       text-decoration: none;
@@ -361,6 +364,11 @@
   function getParam(name){
     const u = new URL(window.location.href);
     return u.searchParams.get(name);
+  }
+
+  function isTrueParam(value){
+    const v = String(value ?? "").trim().toLowerCase();
+    return ["1", "true", "yes", "on"].includes(v);
   }
 
   function resolveMaxTrains(maxRaw){
@@ -805,7 +813,7 @@
     }
   }
 
-  function renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, departures){
+  function renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, departures, showAdaMessage){
     setHeaderTime();
 
     const stopName = stop.stop_name || stop.stop_id || "Station";
@@ -895,7 +903,11 @@
       contentHtml = `<div role="list" class="departureList">${rows}</div>`;
     }
 
-    $("content").innerHTML = contentHtml;
+    const adaHtml = showAdaMessage
+      ? '<div class="closedBanner adaBanner" role="status" aria-live="polite">ADA ALERT &amp; SEE DETAILS</div>'
+      : "";
+
+    $("content").innerHTML = contentHtml + adaHtml;
 
     function escapeHtml(s){
       return String(s).replace(/[&<>"']/g, c => ({
@@ -966,12 +978,29 @@
       return raw || "OPEN";
     };
 
-    const buildAlert = (row, defaultStatus) => ({
-      status: defaultStatus,
-      title: String(row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim(),
-      message: String(row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim(),
-      detail: String(row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim()
-    });
+    const buildAlert = (row, defaultStatus) => {
+      const status = String(defaultStatus || "OPEN").toUpperCase();
+
+      // Allow DELAY and ALERT to keep separate copy in station JSON.
+      const title = (status === "DELAY")
+        ? String(row?.delay_title ?? row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim()
+        : String(row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim();
+
+      const message = (status === "DELAY")
+        ? String(row?.delay_text ?? row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim()
+        : String(row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim();
+
+      const detail = (status === "DELAY")
+        ? String(row?.delay_detail ?? row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim()
+        : String(row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim();
+
+      return {
+        status: defaultStatus,
+        title,
+        message,
+        detail
+      };
+    };
 
     if (!matches.length) {
       return { status: "OPEN", title: "", message: "", detail: "" };
@@ -1116,6 +1145,7 @@
     const xmlUrlParam = getParam("xml") || DEFAULT_XML_URL;
     const dirFilter = normalizeDirParam(getParam("dir"));
     const maxTrains = resolveMaxTrains(getParam("max"));
+    const showAdaMessage = isTrueParam(getParam("adamsg"));
     $("content").textContent = `Loading ${xmlUrlParam}...`;
     try{
       // `fetchXmlWithFallback()` can take a moment; this is where we fetch the XML feed.
@@ -1182,7 +1212,7 @@
           )
         : [];
 
-      renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, deps);
+      renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, deps, showAdaMessage);
 
     } catch (e){
       hideBanner();
