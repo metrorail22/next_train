@@ -1,3 +1,6 @@
+## generate_rail_feed_xml.py
+
+This script generates a sample `rail_feed.xml` with hardcoded station and schedule data (not from GTFS), mainly for demo or testing purposes. It writes the output to `/srv/occ-dashboard/data/xml/rail_feed.xml`.
 # next_train.html Documentation
 
 ## Overview
