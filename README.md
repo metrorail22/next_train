@@ -167,3 +167,4 @@ Inside the script:
 - The file contains repeated local `escapeHtml` helpers in multiple scopes; behavior is consistent but could be centralized.
 - In combo mode, section headers (`directionHeader`) are styled in CSS but currently not rendered in markup.
 - The stop-picker "Inbound/Outbound" logic depends on station JSON `platform_direction` quality.
+
