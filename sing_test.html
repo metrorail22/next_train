@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Next Trains</title>
+  <style>
+    :root { --pad: 16px; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b1020; color: #eef2ff; }
+    .wrap { padding: var(--pad); padding-bottom: 84px; max-width: 1100px; margin: 0 auto; }
+    .top {
+      display: flex; gap: 12px; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,.15); padding-bottom: 10px; margin-bottom: 14px;
+    }
+    .title { font-size: 28px; font-weight: 800; letter-spacing: .2px; }
+    .liveMetaTime {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: #eef2ff;
+      opacity: 1;
+      white-space: nowrap;
+    }
+    .backLink {
+      color: #eef2ff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .directionSection { margin-bottom: 24px; }
+    .directionHeader { 
+      font-size: 18px; 
+      font-weight: 700; 
+      margin: 0 0 8px 0; 
+      color: #eef2ff; 
+      border-bottom: 1px solid rgba(255,255,255,.15); 
+      padding-bottom: 4px; 
+    }
+    .comboItem .stopName { font-size: 18px; font-weight: 600; }
+    .meta { opacity: .85; font-size: 14px; text-align: right; }
+    .banner {
+      background: rgba(255, 214, 102, .12);
+      border: 1px solid rgba(255, 214, 102, .35);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 0 0 12px 0;
+      color: #ffe7b3;
+    }
+    .banner b { color: #fff0cc; }
+    .closedBanner {
+      background: #7f1d1d;
+      border: 2px solid #ef4444;
+      color: #fee2e2;
+      border-radius: 14px;
+      padding: 28px 18px;
+      text-align: center;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .closedBannerLink {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+      cursor: pointer;
+    }
+    .closedBannerLink:hover {
+      text-decoration: underline;
+    }
+    .delayFrame {
+      width: 100%;
+      min-height: 70vh;
+      border: 0;
+      border-radius: 14px;
+      background: #0b1020;
+    }
+    .alertScreen {
+      border-radius: 18px;
+      padding: 28px 22px;
+      min-height: 52vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,.12);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .24);
+    }
+    .alertScreen.alert-delay {
+      background: linear-gradient(180deg, rgba(120,53,15,.96) 0%, rgba(69,26,3,.98) 100%);
+      border-color: rgba(251,191,36,.55);
+      color: #fffbeb;
+    }
+    .alertScreen.alert-alert {
+      background: linear-gradient(180deg, rgba(127,29,29,.96) 0%, rgba(69,10,10,.98) 100%);
+      border-color: rgba(239,68,68,.65);
+      color: #fee2e2;
+    }
+    .alertEyebrow {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: .9;
+      margin-bottom: 14px;
+    }
+    .alertTitle {
+      font-size: clamp(34px, 6vw, 62px);
+      line-height: 1.04;
+      font-weight: 900;
+      letter-spacing: .4px;
+      margin: 0 0 16px 0;
+    }
+    .alertMessage {
+      font-size: clamp(20px, 3vw, 30px);
+      line-height: 1.25;
+      font-weight: 700;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .alertMeta {
+      margin-top: 18px;
+      font-size: 15px;
+      font-weight: 700;
+      opacity: .85;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(19, 28, 48, 0.96) 0%, rgba(12, 18, 33, 0.98) 100%);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .24);
+    }
+    .departureList { display: flex; flex-direction: column; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: minmax(120px, 170px) 1fr minmax(100px, 130px);
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.02) 100%);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .timeBlock {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .time {
+      font-size: clamp(34px, 4.6vw, 52px);
+      font-weight: 900;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      color: #19c6ff;
+      text-shadow: 0 0 20px rgba(25, 198, 255, .15);
+    }
+
+    .hs {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-align: center;
+    }
+    .hsMain {
+      font-size: clamp(26px, 3.4vw, 34px);
+      font-weight: 800;
+      color: #f8fafc;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .hsSub {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: rgba(226, 232, 240, .72);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .etaBlock {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+    .mins {
+      font-size: clamp(28px, 3.8vw, 44px);
+      font-weight: 900;
+      color: #6dff96;
+      white-space: nowrap;
+      text-align: right;
+      text-shadow: 0 0 18px rgba(109, 255, 150, .12);
+    }
+    .hint { margin-top: 10px; opacity: .85; font-size: 14px; }
+    .error { color: #ffb4b4; font-weight: 700; }
+    .assetAlert {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 999;
+      border-top: 2px solid rgba(239,68,68,.85);
+      background: rgba(127,29,29,.95);
+      color: #fee2e2;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      display: none;
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 10px 0;
+    }
+    .assetAlertTrack {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollAlert 36s linear infinite;
+    }
+    @keyframes scrollAlert {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+
+    /* Stops list */
+    .stopsTop {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-bottom:12px;
+    }
+    .search {
+      flex: 1;
+      min-width: 240px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #eef2ff;
+      outline: none;
+      font-size: 16px;
+    }
+    .pillRow { display:flex; gap:8px; flex-wrap:wrap; }
+    .pill {
+      display:inline-block; padding:8px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.05);
+      color: #eef2ff;
+      text-decoration:none;
+      font-weight:700;
+      font-size: 14px;
+      opacity:.95;
+    }
+    .pill:hover { background: rgba(255,255,255,.10); }
+    .stopList { display:flex; flex-direction:column; gap:10px; }
+    .stopItem {
+      display:flex; gap:10px; justify-content:space-between; align-items:baseline; flex-wrap:wrap;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      text-decoration:none;
+      color:#eef2ff;
+    }
+    .stopItem:hover { background: rgba(255,255,255,.08); }
+    .stopLeft { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+    .stopCode {
+      font-weight: 900;
+      letter-spacing: .3px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      font-size: 14px;
+    }
+    .stopName { font-size: 18px; font-weight: 800; }
+    .directionLabel {
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0.8;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 6px;
+    }
+    .stopId { opacity:.75; font-size: 13px; }
+
+    @media (max-width: 700px){
+      .row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 12px 12px;
+      }
+      .timeBlock,
+      .etaBlock,
+      .hs {
+        justify-content: center;
+      }
+      .hsMain,
+      .hsSub,
+      .mins,
+      .time {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title" id="stationTitle">Next departures</div>
+      <div class="meta" id="meta">
+        <span id="liveMetaTime" class="liveMetaTime"></span>
+      </div>
+    </div>
+
+    <div id="banner" style="display:none;"></div>
+    <div class="card" id="content">Loading rail_feed.xml...</div>
+
+    <div id="elevatorAlert" class="assetAlert"></div>
+  </div>
+
+<script>
+(async function(){
+  // -------- Config --------
+  const DEFAULT_XML_URL = "rail_feed.xml";
+  const STATION_STATUS_JSON_URL = "rail_dashboard_stations.json";
+  const VERTICAL_ASSETS_JSON_URL = "nfta_rail_vertical_assets.json";
+  const REFRESH_MS = 30_000;
+  const DEFAULT_MAX_TRAINS = 2;
+
+  // Map feed direction_id -> north/south (this feed uses 1=northbound, 0=southbound)
+  const NORTH_DIRECTION_IDS = new Set(["1"]);
+  const SOUTH_DIRECTION_IDS = new Set(["0"]);
+
+  const $ = (id) => document.getElementById(id);
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  window.onerror = (message) => {
+    $("content").innerHTML = `<div class="error">JS error: ${escapeHtml(message)}</div>`;
+    return false;
+  };
+
+  function getParam(name){
+    const u = new URL(window.location.href);
+    return u.searchParams.get(name);
+  }
+
+  function resolveMaxTrains(maxRaw){
+    const maxText = String(maxRaw ?? "").trim();
+    if (!maxText) return DEFAULT_MAX_TRAINS;
+
+    const parsed = Number.parseInt(maxText, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_MAX_TRAINS;
+
+    return parsed;
+  }
+
+  function fetchWithTimeout(url, options = {}, timeoutMs = 10000){
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    const merged = { signal: controller.signal, ...options };
+    return fetch(url, merged).finally(() => clearTimeout(id));
+  }
+
+  function pad2(n){ return String(n).padStart(2, "0"); }
+  function yyyymmdd(d){ return d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()); }
+
+  function hmFromSeconds(sec){
+    sec = ((sec % 86400) + 86400) % 86400;
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    const ampm = h < 12 ? "AM" : "PM";
+    return `${h12}:${pad2(m)} ${ampm}`;
+  }
+
+  function parseTimeToSeconds(t){
+    if (!t) return null;
+    const parts = t.split(":").map(Number);
+    if (parts.length < 2 || parts.some(Number.isNaN)) return null;
+    const h = parts[0], m = parts[1], s = parts[2] || 0;
+    return (h * 3600) + (m * 60) + s;
+  }
+
+  function nowSecondsLocal(){
+    const n = new Date();
+    return n.getHours()*3600 + n.getMinutes()*60 + n.getSeconds();
+  }
+
+  function minutesUntil(depSec, nowSec){
+    const diff = depSec - nowSec;
+    return Math.round(diff / 60);
+  }
+
+  function weekdayIndexGTFS(date){
+    const d = date.getDay();
+    return ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][d];
+  }
+
+  function normalizeDirParam(dirRaw){
+    if (!dirRaw) return "all";
+    const d = String(dirRaw).trim().toLowerCase();
+    if (["all","any","both","*"].includes(d)) return "all";
+    if (["n","nb","north","northbound"].includes(d)) return "north";
+    if (["s","sb","south","southbound"].includes(d)) return "south";
+    if (["in","ib","inbound"].includes(d)) return "inbound";
+    if (["out","ob","outbound"].includes(d)) return "outbound";
+    if (["combo","combined"].includes(d)) return "combo";
+    if (d === "0") return "dirid:0";
+    if (d === "1") return "dirid:1";
+    return "all";
+  }
+
+  function dirIdMatchesFilter(direction_id, dirFilter){
+    const did = (direction_id ?? "").toString();
+    if (dirFilter === "all") return true;
+    if (dirFilter === "north") return NORTH_DIRECTION_IDS.has(did);
+    if (dirFilter === "south") return SOUTH_DIRECTION_IDS.has(did);
+    if (dirFilter.startsWith("dirid:")) return did === dirFilter.split(":")[1];
+    return true;
+  }
+
+  function activeServiceIdsForDate(date, calendarRows, calendarDatesAddsRemoves){
+    const today = yyyymmdd(date);
+    const active = new Set();
+
+    let hadWeeklyCalendar = calendarRows.length > 0;
+    let hadWeeklyMatch = false;
+    let hadAddToday = false;
+
+    if (calendarRows.length){
+      const wd = weekdayIndexGTFS(date);
+      for (const row of calendarRows){
+        if (row.start_date && row.end_date && (today < row.start_date || today > row.end_date)) continue;
+        if (row[wd] === "1"){
+          active.add(row.service_id);
+          hadWeeklyMatch = true;
+        }
+      }
+    }
+
+    for (const ex of calendarDatesAddsRemoves){
+      if (ex.date !== today) continue;
+      if (ex.exception_type === "1"){
+        active.add(ex.service_id);
+        hadAddToday = true;
+      } else if (ex.exception_type === "2"){
+        active.delete(ex.service_id);
+      }
+    }
+
+    return {
+      active,
+      today,
+      hadWeeklyCalendar,
+      hadWeeklyMatch,
+      hadAddToday
+    };
+  }
+
+  function parseExportXML(xmlDoc){
+    const stops = [];
+    const stopsById = new Map();
+    const stopsByCode = new Map();
+
+    for (const s of xmlDoc.querySelectorAll("stops > stop")){
+      const stop_id = s.getAttribute("stop_id") || "";
+      const stop_code = s.getAttribute("stop_code") || "";
+      const stop_name = s.getAttribute("stop_name") || "";
+      const obj = { stop_id, stop_code, stop_name };
+      stops.push(obj);
+      if (stop_id) stopsById.set(stop_id, obj);
+      if (stop_code) stopsByCode.set(stop_code, obj);
+    }
+
+    const calendarRows = [];
+    for (const c of xmlDoc.querySelectorAll("services > calendar > service")){
+      const row = { service_id: c.getAttribute("service_id") || "" };
+      for (const k of ["monday","tuesday","wednesday","thursday","friday","saturday","sunday","start_date","end_date"]){
+        row[k] = c.getAttribute(k) || "";
+      }
+      if (row.service_id) calendarRows.push(row);
+    }
+
+    const calendarDates = [];
+    for (const svc of xmlDoc.querySelectorAll("services > calendar_dates > service")){
+      const service_id = svc.getAttribute("service_id") || "";
+      for (const d of svc.querySelectorAll("date")){
+        calendarDates.push({
+          service_id,
+          date: d.getAttribute("yyyymmdd") || "",
+          exception_type: d.getAttribute("exception_type") || ""
+        });
+      }
+    }
+
+    const trips = [];
+    for (const t of xmlDoc.querySelectorAll("trips > trip")){
+      const trip_id = t.getAttribute("trip_id") || "";
+      const route_id = t.getAttribute("route_id") || "";
+      const service_id = t.getAttribute("service_id") || "";
+      const headsign = t.getAttribute("trip_headsign") || "";
+      const direction_id = t.getAttribute("direction_id") || t.getAttribute("trip_direction_id") || "";
+      const stopTimes = [];
+
+      for (const st of t.querySelectorAll("stop_times > stop_time")){
+        stopTimes.push({
+          trip_id,
+          stop_id: st.getAttribute("stop_id") || "",
+          arrival_time: st.getAttribute("arrival_time") || "",
+          departure_time: st.getAttribute("departure_time") || "",
+          stop_sequence: st.getAttribute("stop_sequence") || ""
+        });
+      }
+
+      trips.push({ trip_id, route_id, service_id, headsign, direction_id, stopTimes });
+    }
+
+    return { stops, stopsById, stopsByCode, calendarRows, calendarDates, trips };
+  }
+
+  function pickStop(parsed, stopParam){
+    if (!stopParam) return null;
+    if (parsed.stopsById.has(stopParam)) return parsed.stopsById.get(stopParam);
+    if (parsed.stopsByCode.has(stopParam)) return parsed.stopsByCode.get(stopParam);
+
+    const sp = stopParam.toLowerCase();
+    for (const [code, s] of parsed.stopsByCode.entries()){
+      if (String(code).toLowerCase() === sp) return s;
+    }
+    for (const [id, s] of parsed.stopsById.entries()){
+      if (String(id).toLowerCase() === sp) return s;
+    }
+    return null;
+  }
+
+  function getComboStops(parsed, stop){
+    if (!stop) return [];
+    const norm = (s) => String(s || "").toLowerCase().trim().replace(/\s+/g, " ");
+    const target = norm(stop.stop_name || stop.stop_id || "");
+    if (!target) return [stop];
+    const matches = parsed.stops.filter(s => norm(s.stop_name || s.stop_id || "") === target);
+    return matches.length ? matches : [stop];
+  }
+
+  function computeDiagnostics(parsed, stop, svcInfo, dirFilter){
+    const nowSec = nowSecondsLocal();
+    const active = svcInfo.active;
+    const anyServiceActiveToday = active.size > 0;
+
+    let totalDeparturesTodayAtStop = 0;
+    let futureDeparturesAtStop = 0;
+
+    if (stop && anyServiceActiveToday){
+      for (const trip of parsed.trips){
+        if (trip.service_id && !active.has(trip.service_id)) continue;
+        if (!dirIdMatchesFilter(trip.direction_id, dirFilter)) continue;
+
+        for (const st of trip.stopTimes){
+          if (st.stop_id !== stop.stop_id) continue;
+          const dep = parseTimeToSeconds(st.departure_time || st.arrival_time);
+          if (dep == null) continue;
+          totalDeparturesTodayAtStop++;
+          if (dep >= nowSec) futureDeparturesAtStop++;
+        }
+      }
+    }
+
+    return { anyServiceActiveToday, totalDeparturesTodayAtStop, futureDeparturesAtStop };
+  }
+
+  function buildNextDepartures(parsed, stop, svcInfo, dirFilter, count=DEFAULT_MAX_TRAINS){
+    const active = svcInfo.active;
+    const nowSec = nowSecondsLocal();
+
+    const departures = [];
+    for (const trip of parsed.trips){
+      if (active.size > 0 && trip.service_id && !active.has(trip.service_id)) continue;
+      if (!dirIdMatchesFilter(trip.direction_id, dirFilter)) continue;
+
+      for (const st of trip.stopTimes){
+        if (st.stop_id !== stop.stop_id) continue;
+        const dep = parseTimeToSeconds(st.departure_time || st.arrival_time);
+        if (dep == null) continue;
+        if (dep < nowSec) continue;
+
+        departures.push({
+          depSec: dep,
+          headsign: trip.headsign || "",
+          routeId: trip.route_id || "",
+          directionId: trip.direction_id || "",
+          minutes: minutesUntil(dep, nowSec),
+        });
+      }
+    }
+
+    departures.sort((a,b) => a.depSec - b.depSec);
+    return departures.slice(0, count);
+  }
+
+  function buildNextDeparturesForStops(parsed, stops, svcInfo, dirFilter, count=DEFAULT_MAX_TRAINS){
+    const active = svcInfo.active;
+    const nowSec = nowSecondsLocal();
+    const stopIds = new Set((stops || []).map(s => String(s.stop_id || "")).filter(Boolean));
+
+    const departures = [];
+    for (const trip of parsed.trips){
+      if (active.size > 0 && trip.service_id && !active.has(trip.service_id)) continue;
+      if (!dirIdMatchesFilter(trip.direction_id, dirFilter)) continue;
+
+      for (const st of trip.stopTimes){
+        if (!stopIds.has(String(st.stop_id || ""))) continue;
+        const dep = parseTimeToSeconds(st.departure_time || st.arrival_time);
+        if (dep == null) continue;
+        if (dep < nowSec) continue;
+
+        departures.push({
+          depSec: dep,
+          headsign: trip.headsign || "",
+          routeId: trip.route_id || "",
+          directionId: trip.direction_id || "",
+          minutes: minutesUntil(dep, nowSec),
+        });
+      }
+    }
+
+    departures.sort((a,b) => a.depSec - b.depSec);
+    return departures.slice(0, count);
+  }
+
+  function showBanner(html){
+    const b = $("banner");
+    b.className = "banner";
+    b.style.display = "block";
+    b.innerHTML = html;
+  }
+
+  function hideBanner(){
+    const b = $("banner");
+    b.style.display = "none";
+    b.innerHTML = "";
+  }
+
+  function buildUrlWith(params){
+    const u = new URL(window.location.href);
+    for (const [k,v] of Object.entries(params)){
+      if (v === null || v === undefined || v === "") u.searchParams.delete(k);
+      else u.searchParams.set(k, v);
+    }
+    return u.toString();
+  }
+
+  function setHeaderTime(){
+    const el = $("liveMetaTime");
+    if (!el) return;
+    el.textContent = new Date().toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+  }
+
+  async function renderStopPicker(parsed, xmlUrl){
+    hideBanner();
+    $("stationTitle").innerHTML = '<a href="#" onclick="history.back(); return false;" class="backLink">Choose a stop</a>';
+    setHeaderTime();
+
+    // Fetch station status data to get platform directions
+    const stationStatusRows = await fetchStationStatusRows();
+
+    // Sort: by stop_name then code
+    const stops = parsed.stops.slice().sort((a,b) => {
+      const an = (a.stop_name || "").toLowerCase();
+      const bn = (b.stop_name || "").toLowerCase();
+      if (an < bn) return -1;
+      if (an > bn) return 1;
+      const ac = (a.stop_code || "").toLowerCase();
+      const bc = (b.stop_code || "").toLowerCase();
+      if (ac < bc) return -1;
+      if (ac > bc) return 1;
+      return 0;
+    });
+
+    const dirFilter = normalizeDirParam(getParam("dir"));
+    const listHtml = `
+      <div class="stopsTop">
+        <input class="search" id="stopSearch" placeholder="Search stops (name or code)..." autocomplete="off" />
+        <div class="pillRow">
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "all", xml: xmlUrl }))}">All</a>
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "north", xml: xmlUrl }))}">Northbound</a>
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "south", xml: xmlUrl }))}">Southbound</a>
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "inbound", xml: xmlUrl }))}">Inbound</a>
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "outbound", xml: xmlUrl }))}">Outbound</a>
+          <a class="pill" href="${escapeHtml(buildUrlWith({ stop: null, dir: "combo", xml: xmlUrl }))}">COMBO</a>
+        </div>
+      </div>
+      <div class="stopList" id="stopList"></div>
+    `;
+
+    $("content").innerHTML = listHtml;
+
+    const stopListEl = document.getElementById("stopList");
+    const searchEl = document.getElementById("stopSearch");
+
+    function getPlatformDirection(stop) {
+      const stopCode = String(stop.stop_code || "").trim();
+      const stopId = String(stop.stop_id || "").trim();
+
+      for (const row of stationStatusRows) {
+        const stationNumber = String(row.station_number || "").trim();
+        const gtfsStopId = String(row.gtfs_stop_id || "").trim();
+
+        if ((stopCode && stationNumber === stopCode) || (stopId && gtfsStopId === stopId)) {
+          const direction = String(row.platform_direction || "").toUpperCase().trim();
+          return direction === "INBOUND" ? "Inbound" : direction === "OUTBOUND" ? "Outbound" : "";
+        }
+      }
+      return "";
+    }
+
+    function renderList(filterText){
+      const ft = (filterText || "").trim().toLowerCase();
+      let filtered = ft
+        ? stops.filter(s => (s.stop_name||"").toLowerCase().includes(ft) || (s.stop_code||"").toLowerCase().includes(ft) || (s.stop_id||"").toLowerCase().includes(ft))
+        : stops;
+
+      // Apply direction filter
+      if (dirFilter === "inbound") {
+        filtered = filtered.filter(s => getPlatformDirection(s) === "Inbound");
+      } else if (dirFilter === "outbound") {
+        filtered = filtered.filter(s => getPlatformDirection(s) === "Outbound");
+      } else if (dirFilter === "combo") {
+        // For combo mode, deduplicate stations by normalized name
+        const nameMap = new Map();
+        filtered.forEach(s => {
+          const name = (s.stop_name || s.stop_id || "").toLowerCase().trim().replace(/\s+/g, ' ');
+          if (!nameMap.has(name)) {
+            nameMap.set(name, s);
+          }
+        });
+        filtered = Array.from(nameMap.values());
+      }
+
+      stopListEl.innerHTML = filtered.map(s => {
+        const code = s.stop_code || s.stop_id || "";
+        const name = s.stop_name || s.stop_id || "";
+        const direction = getPlatformDirection(s);
+        const directionLabel = direction ? ` <span class="directionLabel">(${direction})</span>` : "";
+        
+        if (dirFilter === "combo") {
+          // In COMBO mode, show only station name and make it clickable for both directions
+          const href = buildUrlWith({ stop: code, dir: "combo", xml: xmlUrl });
+          return `
+            <a class="stopItem comboItem" href="${escapeHtml(href)}">
+              <div class="stopLeft">
+                <span class="stopName">${escapeHtml(name)}</span>
+              </div>
+            </a>
+          `;
+        } else {
+          // Normal mode with codes and directions
+          const href = buildUrlWith({ stop: code, xml: xmlUrl });
+          return `
+            <a class="stopItem" href="${escapeHtml(href)}">
+              <div class="stopLeft">
+                <span class="stopCode">${escapeHtml(code || "(no code)")}</span>
+                <span class="stopName">${escapeHtml(name)}${directionLabel}</span>
+              </div>
+              <span class="stopId">stop_id: ${escapeHtml(s.stop_id || "")}</span>
+            </a>
+          `;
+        }
+      }).join("");
+
+      if (!filtered.length){
+        stopListEl.innerHTML = `<div class="error">No stops match your search.</div>`;
+      }
+    }
+
+    searchEl.addEventListener("input", () => renderList(searchEl.value));
+    renderList("");
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+  }
+
+  function renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, departures){
+    setHeaderTime();
+
+    const stopName = stop.stop_name || stop.stop_id || "Station";
+    $("stationTitle").innerHTML = `<a href="#" onclick="history.back(); return false;" class="backLink">Next departures — ${escapeHtml(stopName)}</a>`;
+
+    if (!diagnostics.anyServiceActiveToday){
+      showBanner(`
+        <b>No service today</b> (${svcInfo.today}).<br/>
+        Reason: no <code>service_id</code> is active today (no weekly calendar match and no <code>calendar_dates</code> add for today).
+      `);
+    } else if (diagnostics.totalDeparturesTodayAtStop === 0){
+      showBanner(`
+        <b>No departures today</b> for this stop${dirFilter !== "all" ? " with the current direction filter" : ""}.<br/>
+        Services are active today (${svcInfo.today}), but this stop does not appear in any trips that run today${dirFilter !== "all" ? " for the selected direction" : ""}.
+      `);
+    } else if (diagnostics.futureDeparturesAtStop === 0){
+      showBanner(`
+        <b>After-hours</b> at this stop${dirFilter !== "all" ? " for the selected direction" : ""}.<br/>
+        Services are active today (${svcInfo.today}), but all departures for this stop are earlier than the current time.
+      `);
+    } else {
+      hideBanner();
+    }
+
+    if (!departures.length){
+      $("content").innerHTML = `<div class="error">No upcoming departures found.</div>`;
+      return;
+    }
+
+    function titleCaseDirection(label) {
+      return String(label || "")
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function getPrimaryDirectionLabel(dep) {
+      if (dep.directionLabel) return titleCaseDirection(dep.directionLabel);
+      if (dep.directionId === "1") return "Northbound";
+      if (dep.directionId === "0") return "Southbound";
+      return "Next Train";
+    }
+
+    function buildDepartureRow(dep) {
+      const timeHuman = hmFromSeconds(dep.depSec);
+      const mins = (dep.minutes <= 0) ? "Now" : `${dep.minutes} min`;
+      const mainLabel = getPrimaryDirectionLabel(dep);
+      const subLabel = dep.headsign && dep.headsign !== mainLabel ? dep.headsign : "Metro Rail";
+
+      return `
+        <div class="row" role="listitem" aria-label="Departure in ${escapeHtml(mins)} at ${escapeHtml(timeHuman)} for ${escapeHtml(mainLabel)}">
+          <div class="timeBlock">
+            <span class="time">${escapeHtml(timeHuman)}</span>
+          </div>
+          <div class="hs" aria-label="Destination and direction">
+            <div class="hsMain">${escapeHtml(mainLabel)}</div>
+            <div class="hsSub">${escapeHtml(subLabel)}</div>
+          </div>
+          <div class="etaBlock">
+            <span class="mins">${escapeHtml(mins)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    let contentHtml;
+    if (dirFilter === "combo") {
+      // Group departures by direction for combo mode
+      const northbound = departures.filter(d => d.directionLabel === "NORTHBOUND").slice(0, 3);
+      const southbound = departures.filter(d => d.directionLabel === "SOUTHBOUND").slice(0, 3);
+      
+      const renderDirectionSection = (deps) => {
+        if (!deps.length) return "";
+        const rows = deps.map(buildDepartureRow).join("");
+        
+        return `
+          <div class="directionSection">
+            <div role="list" class="departureList">${rows}</div>
+          </div>
+        `;
+      };
+      
+      contentHtml = renderDirectionSection(northbound) + renderDirectionSection(southbound);
+    } else {
+      // Normal single direction display
+      const rows = departures.map(buildDepartureRow).join("");
+
+      contentHtml = `<div role="list" class="departureList">${rows}</div>`;
+    }
+
+    $("content").innerHTML = contentHtml;
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+  }
+
+  async function fetchXmlWithFallback(primaryUrl){
+    const url = primaryUrl;
+    try {
+      const res = await fetchWithTimeout(url, { cache: "no-store" }, 12000);
+      if (!res.ok) throw new Error(`Failed to fetch XML (${res.status}) from ${url}`);
+      const xmlText = await res.text();
+      return { xmlText, xmlUrl: url };
+    } catch (err) {
+      throw new Error(`Failed to fetch XML from ${url}: ${err.message}`);
+    }
+  }
+
+
+  async function fetchStationStatusRows(){
+    try {
+      const res = await fetchWithTimeout(STATION_STATUS_JSON_URL, { cache: "no-store" }, 12000);
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (data && Array.isArray(data.stations)){
+        return data.stations;
+      }
+    } catch (_err){
+    }
+    return [];
+  }
+
+    async function fetchVerticalAssets(){
+    try {
+      const res = await fetchWithTimeout(VERTICAL_ASSETS_JSON_URL, { cache: "no-store" }, 12000);
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (data && Array.isArray(data.assets)){
+        return data.assets;
+      }
+    } catch (_err){
+    }
+    return [];
+  }
+
+  function getStationRowsForStop(stop, stationRows){
+    const stopCode = String(stop.stop_code || "").trim();
+    const stopId = String(stop.stop_id || "").trim();
+
+    return stationRows.filter((row) => {
+      const stationNumber = String(row.station_number || "").trim();
+      const gtfsStopId = String(row.gtfs_stop_id || "").trim();
+      return (stopCode && stationNumber === stopCode) || (stopId && gtfsStopId === stopId);
+    });
+  }
+
+  function getStationAlertConfigForStop(stop, stationRows){
+    const matches = getStationRowsForStop(stop, stationRows);
+
+    const normalizeStatus = (row) => {
+      if (row == null) return "OPEN";
+      const raw = String(row.station_status ?? row.status ?? row.state ?? "OPEN").toUpperCase().trim();
+      if (raw === "DELAY" || raw === "OPEN" || raw === "CLOSED" || raw === "ALERT") return raw;
+      if (row.station_status === true || row.status === true) return "CLOSED";
+      if (row.station_status === false || row.status === false) return "OPEN";
+      return raw || "OPEN";
+    };
+
+    const buildAlert = (row, defaultStatus) => ({
+      status: defaultStatus,
+      title: String(row?.alert_title ?? row?.message_title ?? row?.title ?? "").trim(),
+      message: String(row?.alert_text ?? row?.message ?? row?.alert_message ?? row?.description ?? "").trim(),
+      detail: String(row?.alert_detail ?? row?.detail ?? row?.subtext ?? "").trim()
+    });
+
+    if (!matches.length) {
+      return { status: "OPEN", title: "", message: "", detail: "" };
+    }
+
+    const priorities = ["CLOSED", "ALERT", "DELAY", "OPEN"];
+    for (const status of priorities){
+      const row = matches.find((r) => normalizeStatus(r) === status);
+      if (row) {
+        const alert = buildAlert(row, status);
+        if (!alert.title) {
+          if (status === "CLOSED") alert.title = "Station Closed";
+          else if (status === "ALERT") alert.title = "Rider Alert";
+          else if (status === "DELAY") alert.title = "Service Delay";
+        }
+        return alert;
+      }
+    }
+
+    return { status: "OPEN", title: "", message: "", detail: "" };
+  }
+
+  async function renderElevatorOutageLine(matchingStationRows, stop){
+    const alertEl = $("elevatorAlert");
+    if (!alertEl){
+      return;
+    }
+
+    const norm = (v) => String(v || "").trim().toUpperCase().replace(/\s+/g, " ");
+
+    if ((!matchingStationRows || !matchingStationRows.length) && !stop){
+      alertEl.style.display = "none";
+      alertEl.textContent = "";
+      return;
+    }
+
+    const stationNames = new Set(
+      (matchingStationRows || [])
+        .flatMap((row) => [row.station_name, row.name, row.station])
+        .map(norm)
+        .filter(Boolean)
+    );
+
+    const stationNumbers = new Set(
+      (matchingStationRows || [])
+        .flatMap((row) => [row.station_number, row.station_code, row.stop_code])
+        .map((v) => String(v || "").trim())
+        .filter(Boolean)
+    );
+
+    const gtfsStopIds = new Set(
+      (matchingStationRows || [])
+        .flatMap((row) => [row.gtfs_stop_id, row.stop_id])
+        .map((v) => String(v || "").trim())
+        .filter(Boolean)
+    );
+
+    if (stop){
+      if (stop.stop_name) stationNames.add(norm(stop.stop_name));
+      if (stop.stop_code) stationNumbers.add(String(stop.stop_code).trim());
+      if (stop.stop_id) gtfsStopIds.add(String(stop.stop_id).trim());
+    }
+
+    const assets = await fetchVerticalAssets();
+
+    const impactedAssetNames = [...new Set(
+      assets
+        .filter((asset) => {
+          const type = norm(asset.asset_type || asset.type || asset.equipment_type || asset.category);
+          return type.includes("ELEVATOR") || type.includes("ESCALATOR");
+        })
+        .filter((asset) => {
+          const status = norm(asset.status || asset.asset_status || asset.current_status || asset.state);
+          return ["OFF", "DOWN", "OUT OF SERVICE", "OUT_OF_SERVICE", "OOS", "OUT", "UNAVAILABLE", "FAILED"].includes(status);
+        })
+        .filter((asset) => {
+          const assetStationName = norm(asset.station_name || asset.station || asset.location_name || asset.stop_name);
+          const assetStationNumber = String(asset.station_number || asset.station_code || asset.stop_code || "").trim();
+          const assetStopId = String(asset.gtfs_stop_id || asset.stop_id || "").trim();
+          return (
+            (assetStationName && stationNames.has(assetStationName)) ||
+            (assetStationNumber && stationNumbers.has(assetStationNumber)) ||
+            (assetStopId && gtfsStopIds.has(assetStopId))
+          );
+        })
+        .map((asset) => String(asset.asset_name || asset.name || asset.device_name || asset.description || asset.asset_id || "").trim())
+        .filter((name) => name)
+    )];
+
+    if (!impactedAssetNames.length){
+      alertEl.style.display = "none";
+      alertEl.textContent = "";
+      return;
+    }
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+
+    const message = `Accessibility Alert: Elevator/Escalator Out of Service at this station: ${impactedAssetNames.map(esc).join(", ")}`;
+    alertEl.innerHTML = `<span class="assetAlertTrack">${message}</span>`;
+    alertEl.style.display = "block";
+  }
+
+  function renderStationClosed(stop, dirFilter){
+    const stopName = stop.stop_name || stop.stop_id || "Station";
+    $("stationTitle").textContent = `Next departures - ${stopName}`;
+    setHeaderTime();
+    hideBanner();
+    $("content").innerHTML = '<div class="closedBanner"><a href="#" onclick="history.back(); return false;" class="closedBannerLink" aria-label="Station closed. Go back">STATION CLOSED</a></div>';
+  }
+
+  function renderStationAlert(stop, alertConfig){
+    const stopName = stop.stop_name || stop.stop_id || "Station";
+    const status = String(alertConfig?.status || "ALERT").toUpperCase();
+    const title = String(alertConfig?.title || (status === "DELAY" ? "Service Delay" : "Rider Alert")).trim();
+    const message = String(alertConfig?.message || (status === "DELAY" ? "Train service is delayed at this station." : "Please listen for announcements and follow posted instructions.")).trim();
+    const detail = String(alertConfig?.detail || "").trim();
+    const screenClass = status === "DELAY" ? "alert-delay" : "alert-alert";
+    const eyebrow = status === "DELAY" ? "Delay" : "Alert";
+
+    $("stationTitle").innerHTML = `<a href="#" onclick="history.back(); return false;" class="backLink">${escapeHtml(title)} - ${escapeHtml(stopName)}</a>`;
+    setHeaderTime();
+    hideBanner();
+    $("content").innerHTML = `
+      <div class="alertScreen ${screenClass}" role="alert" aria-live="assertive">
+        <div class="alertEyebrow">${escapeHtml(eyebrow)}</div>
+        <h1 class="alertTitle">${escapeHtml(title)}</h1>
+        <div class="alertMessage">${escapeHtml(message)}</div>
+        ${detail ? `<div class="alertMeta">${escapeHtml(detail)}</div>` : ""}
+      </div>
+    `;
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+  }
+  async function loadAndRender(){
+    const stopParam = getParam("stop");
+    const xmlUrlParam = getParam("xml") || DEFAULT_XML_URL;
+    const dirFilter = normalizeDirParam(getParam("dir"));
+    const maxTrains = resolveMaxTrains(getParam("max"));
+    $("content").textContent = `Loading ${xmlUrlParam}...`;
+    try{
+      // `fetchXmlWithFallback()` can take a moment; this is where we fetch the XML feed.
+      const fetched = await fetchXmlWithFallback(xmlUrlParam);
+      const xmlDoc = new DOMParser().parseFromString(fetched.xmlText, "application/xml");
+
+      const parserError = xmlDoc.querySelector("parsererror");
+      if (parserError) throw new Error("XML parse error (parsererror found).");
+
+      const parsed = parseExportXML(xmlDoc);
+
+      if (!stopParam){
+        // Default to combo list when no dir is specified
+        if (!getParam("dir")) {
+          const u = new URL(window.location.href);
+          u.searchParams.set("dir", "combo");
+          window.history.replaceState(null, "", u.toString());
+        }
+        $("elevatorAlert").style.display = "none";
+        $("elevatorAlert").textContent = "";
+        renderStopPicker(parsed, fetched.xmlUrl);
+        return;
+      }
+
+      const stop = pickStop(parsed, stopParam);
+
+      if (!stop){
+        hideBanner();
+        $("stationTitle").textContent = "Next departures";
+        $("elevatorAlert").style.display = "none";
+        $("elevatorAlert").textContent = "";
+        setHeaderTime();
+        $("content").innerHTML = `<div class="error">Stop not found.</div>` +
+          `<div style="margin-top:8px;opacity:.9;">` +
+          `Remove the stop param to pick from a list, e.g. <code>${escapeHtml(buildUrlWith({ stop: null }))}</code>` +
+          `</div>`;
+        return;
+      }
+
+      const stationStatusRows = await fetchStationStatusRows();
+      const matchingStationRows = getStationRowsForStop(stop, stationStatusRows);
+      await renderElevatorOutageLine(matchingStationRows, stop);
+      const alertConfig = getStationAlertConfigForStop(stop, stationStatusRows);
+      if (alertConfig.status === "CLOSED"){
+        renderStationClosed(stop, dirFilter);
+        return;
+      }
+      if (alertConfig.status === "DELAY" || alertConfig.status === "ALERT") {
+        renderStationAlert(stop, alertConfig);
+        return;
+      }
+
+      const svcInfo = activeServiceIdsForDate(new Date(), parsed.calendarRows, parsed.calendarDates);
+      const diagnostics = computeDiagnostics(parsed, stop, svcInfo, dirFilter);
+      const comboStops = (dirFilter === "combo") ? getComboStops(parsed, stop) : [stop];
+
+      const deps = (svcInfo.active.size > 0)
+        ? (dirFilter === "combo" 
+            ? [
+                ...buildNextDeparturesForStops(parsed, comboStops, svcInfo, "north", maxTrains).map(d => ({ ...d, directionLabel: "NORTHBOUND" })),
+                ...buildNextDeparturesForStops(parsed, comboStops, svcInfo, "south", maxTrains).map(d => ({ ...d, directionLabel: "SOUTHBOUND" }))
+              ] .sort((a,b) => a.depSec - b.depSec).slice(0, maxTrains * 2)
+            : buildNextDepartures(parsed, stop, svcInfo, dirFilter, maxTrains)
+          )
+        : [];
+
+      renderDepartures(stopParam, stop, dirFilter, svcInfo, diagnostics, deps);
+
+    } catch (e){
+      hideBanner();
+      $("stationTitle").textContent = "Next departures";
+      $("elevatorAlert").style.display = "none";
+      $("elevatorAlert").textContent = "";
+
+      const protocolHint = window.location.protocol === "file:"
+        ? "This page is opened as file:// and some browsers block fetch for local files. Run a local web server for this folder."
+        : "";
+
+      $("content").innerHTML = `<div class="error">Error: ${escapeHtml(e.message || String(e))}</div>
+        <div style="margin-top:8px;opacity:.9;">
+          Tried to load XML from <code>${escapeHtml(xmlUrlParam)}</code>.
+          ${protocolHint ? `<br/>${escapeHtml(protocolHint)}` : ""}
+          <br/>You can also override using <code>?xml=PATH_OR_URL_TO_XML</code>.
+        </div>`;
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+  }
+
+  setHeaderTime();
+  setInterval(setHeaderTime, 1000);
+  await loadAndRender();
+  setInterval(loadAndRender, REFRESH_MS);
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
