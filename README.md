@@ -1,6 +1,6 @@
 ## generate_rail_feed_xml.py
 
-This script generates a `rail_feed.xml` with hardcoded station and schedule data (not from GTFS), mainly for demo or testing until realtime data can be integrated.
+This script generates a `rail_feed.xml` with hardcoded station and schedule data (not from GTFS), mainly for demo or testing until real-time data can be integrated.
 # next_train.html Documentation
 
 ## Overview
